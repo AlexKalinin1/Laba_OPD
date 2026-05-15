@@ -84,7 +84,27 @@ class TestMostCommonWordApp(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertIn('кот'.encode('utf-8'), response.data)
+        self.assertIn('собака'.encode('utf-8'), response.data)
         self.assertIn('2'.encode('utf-8'), response.data)
+
+    def test_wrong_file_format(self):
+        """Тест: загрузка файла неверного формата"""
+        data = {
+            'file': (
+                BytesIO('кот собака кот'.encode('utf-8')),
+                'test.docx'
+            )
+        }
+
+        response = self.app.post(
+            '/',
+            data=data,
+            content_type='multipart/form-data'
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('Можно загружать только файлы .txt'.encode('utf-8'), response.data)
+        self.assertIn('0'.encode('utf-8'), response.data)
 
     def test_no_words_in_file(self):
         """Тест: если в файле нет слов"""
